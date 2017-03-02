@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='utf-8' />
+  <title></title>
+  <meta name='viewport' content='initial-scale=1,maximum-scale=1,user-scalable=no' />
+  <script src='https://api.tiles.mapbox.com/mapbox-gl-js/v0.18.0/mapbox-gl.js'></script>
+  <link href='https://api.tiles.mapbox.com/mapbox-gl-js/v0.18.0/mapbox-gl.css' rel='stylesheet' />
+  <link href='https://www.mapbox.com/base/latest/base.css' rel='stylesheet' />
+  <style>
+    body { margin:0; padding:0; }
+    #map { position:absolute; top:0; bottom:0; width:100%; }
+    .popup {
+      color: #333;
+      display: table;
+      font-family: "Open Sans", sans-serif;
+      font-size: 10px;
+    }
+
+    .feature:not(:last-child) {
+      border-bottom: 1px solid #ccc;
+    }
+
+    .layer:before {
+      content: '#';
+    }
+
+    .layer {
+      display: block;
+      font-weight: bold;
+    }
+
+    .property {
+      display: table-row;
+    }
+
+    .property-value {
+      display: table-cell;
+
+    }
+
+    .property-name {
+      display: table-cell;
+      padding-right: 10px;
+    }
+  </style>
+</head>
+<body>
+
+<div id='map'></div>
+
+<script>
+mapboxgl.accessToken = '<%= accessToken %>';
+var map = new mapboxgl.Map({
+  container: 'map',
+  style: 'mapbox://styles/mapbox/dark-v8',
+  hash: true,
+  maxZoom: 30
+});
+
+var layers = {
+  lines: []
+}
+
+var lightColors = [
+  'FC49A3', // pink
+  'CC66FF', // purple-ish
+  '66CCFF', // sky blue
+  '66FFCC', // teal
+  '00FF00', // lime green
+  'FFCC66', // light orange
+  'FF6666', // salmon
+  'FF0000', // red
+  'FF8000', // orange
+  'FFFF66', // yellow
+  '00FFFF'  // turquoise
+];
+
+function randomColor(colors) {
+  var randomNumber = parseInt(Math.random() * colors.length);
+  return colors[randomNumber];
+}
+
+map.on('load', function () {
+    map.addSource('features', {
+      type: 'vector',
+      tiles: [
+        '<%= uriPrefix %>' + '/{z}/{x}/{y}.pbf'
+      ],
+    });
+
+  map.addLayer({
+    'id': 'lines',
+    'type': 'line',
+    'source': 'features',
+    'source-layer': 'geojsonLayer',
+    'layout': {
+      'line-join': 'round',
+      'line-cap': 'round'
+    },
+    'paint': {
+      'line-color': '#' + randomColor(lightColors),
+      'line-width': 1
+    }
+  });
+  layers.lines.push('lines');
+});
+
+
+function displayValue(value) {
+  if (typeof value === 'undefined' || value === null) return value;
+  if (typeof value === 'object' ||
+      typeof value === 'number' ||
+      typeof value === 'string') return value.toString();
+  return value;
+}
+
+function renderProperty(propertyName, property) {
+  return '<div class="property">' +
+    '<div class="property-name">' + propertyName + '</div>' +
+    '<div class="property-value">' + displayValue(property) + '</div>' +
+    '</div>';
+}
+
+function renderLayer(layerId) {
+  return '<div class="layer">' + layerId + '</div>';
+}
+
+function renderProperties(feature) {
+  var sourceProperty = renderLayer(feature.layer['source-layer'] || feature.layer.source);
+  var typeProperty = renderProperty('$type', feature.geometry.type);
+  var properties = Object.keys(feature.properties).map(function (propertyName) {
+    return renderProperty(propertyName, feature.properties[propertyName]);
+  });
+  return [sourceProperty, typeProperty].concat(properties).join('');
+}
+
+function renderFeatures(features) {
+  return features.map(function (ft) {
+    return '<div class="feature">' + renderProperties(ft) + '</div>';
+  }).join('');
+}
+
+
+function renderPopup(features) {
+  return '<div class="popup">' + renderFeatures(features) + '</div>';
+}
+
+var popup = new mapboxgl.Popup({
+  closeButton: false,
+  closeOnClick: false
+});
+
+map.on('mousemove', function (e) {
+  // set a bbox around the pointer
+  var selectThreshold = 5;
+  var queryBox = [
+    [
+      e.point.x - selectThreshold,
+      e.point.y + selectThreshold
+    ], // bottom left (SW)
+    [
+      e.point.x + selectThreshold,
+      e.point.y - selectThreshold
+    ] // top right (NE)
+  ];
+
+  var features = map.queryRenderedFeatures(queryBox, {
+    layers: layers.lines.concat(layers.pts)
+  }) || [];
+  map.getCanvas().style.cursor = (features.length) ? 'pointer' : '';
+
+  if (!features.length) {
+    popup.remove();
+  } else {
+    popup.setLngLat(e.lngLat)
+      .setHTML(renderPopup(features))
+      .addTo(map);
+  }
+});
+</script>
+
+</body>
+</html>

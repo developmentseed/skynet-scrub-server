@@ -1,0 +1,23 @@
+{
+  "name": "skynet-scrub-backend",
+  "version": "1.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "scripts": {
+   "start-db": "docker run -d -p 9851:9851 -v data:/data --name tile38 tile38/tile38 tile38-server -d /data",
+   "start": "node index.js"
+  },
+  "dependencies": {
+    "ejs": "^2.5.6",
+    "express": "^4.14.1",
+    "geojson-vt": "^2.4.0",
+    "has": "^1.0.1",
+    "map-stream": "^0.0.6",
+    "minimist": "^1.2.0",
+    "ndjson": "^1.5.0",
+    "sphericalmercator": "^1.0.5",
+    "tile38": "^0.6.4",
+    "vt-pbf": "^2.1.2",
+    "winston": "^2.3.1"
+  }
+}
