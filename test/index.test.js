@@ -12,23 +12,32 @@ let test = ava.test;
 let singleFeature = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures/feature.geojson')));
 
 var client = new dbMock();
-  
-let app = rewire('../index.js');
-app.__set__({
+
+let lib = rewire('../lib.js');
+lib.__set__({
   client: client
-})
+});
+let app = lib.init();
 
-test.before(t => {
-  return client.set('1', singleFeature);
-})
+test.before(async t => {
+  return await client.set('features', '1', singleFeature);
+});
 
-test('getFeatureById', t => {
-  request(app)
-    .get('/features/1')
+test('getFeatureById - get existing feature', async t => {
+  const res = await request(app)
+    .get('/features/1.json')
     .set('Accept', 'application/json')
-    .expect(200)
-    .then((err, res) => {
-      if (err) return t.fail(err);
-      return t.deepEqual(singleFeature, res);
-    });
+
+  t.is(res.status, 200);
+  t.deepEqual(res.body, singleFeature);
+});
+
+test('setFeatureById - create new feature', async t => {
+  const res = await request(app)
+    .put('/features/2.json')
+    .send(singleFeature)
+
+  t.is(res.status, 200);
+  let feature = await client.get('2');
+  t.deepEqual(singleFeature, feature);
 });

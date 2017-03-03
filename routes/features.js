@@ -7,70 +7,69 @@ const merc = new SphericalMercator();
 const gvt = require('geojson-vt');
 const vtpbf = require('vt-pbf');
 
-/* Get features from db at z,x,y tile */
-function queryTile(z, x, y) {
-  logger.debug(z,x,y);
-  const bbox = merc.bbox(x, y, z);
-  return client.intersectsQuery('features')
-    .bounds(bbox[1], bbox[0], bbox[3], bbox[2])
-    .execute();
-}
-
 /* Inject client connection */
 module.exports = function (client) {
+  /* Get features from db at z,x,y tile */
+  function queryTile(z, x, y) {
+    const bbox = merc.bbox(x, y, z);
+    return client.intersectsQuery('features')
+      .bounds(bbox[1], bbox[0], bbox[3], bbox[2])
+      .execute();
+  }
+
   return {
     /* Get features by id */
-    getFeatureById: (req, res) => {
+    getFeatureById: async (req, res) => {
       var id = req.params.id;
 
       if (notDefined(id)) {
         res.boom.badRequest('id is required');
       }
 
-      client.get('features', id)
-        .then(function (data) {
-          let feature = dbObjToGeoJSON(data);
-          res.json(feature);
-        });
+      try {
+        let feature = await client.get('features', id);
+        res.json(dbObjToGeoJSON(feature));
+      } catch (err) {
+        logger.error(err);
+        res.status(404).send('Not found');
+      }
     },
 
-
     /* Get features at z,x,y tile */
-    getFeaturesTile: (req, res) => {
+    getFeaturesTile: async (req, res) => {
       let p = req.params;
       let x = parseInt(p.x);
       let y = parseInt(p.y);
       let z = parseInt(p.z);
       let format = p.format;
 
-      queryTile(z, x, y)
-        .then(function (data) {
-          let features = data.objects.map(dbObjToGeoJSON);
+      let tileData = await queryTile(z, x, y)
+      let features = tileData.objects.map(dbObjToGeoJSON);
 
-          // Send a vector tile
-          if (format === 'pbf') {
-            if (features.length > 0) {
-              const tileIndex = gvt(fc(features), {indexMaxZoom: z, maxZoom: z});
-              const tile = tileIndex.getTile(z, x, y);
-              let buf = vtpbf.fromGeojsonVt({ 'geojsonLayer': tile})
-              res.writeHead(200, {
-                'Content-Type': 'application/x-protobuf'
-              });
-              res.end(buf)
-            } else {
-              res.status(404).send()
-            }
-            // Send a GeoJSON array
-          } else if (format === 'json'){
-            res.json(features);
+      try {
+        // Send a vector tile
+        if (format === 'pbf') {
+          if (features.length > 0) {
+            const tileIndex = gvt(fc(features), {indexMaxZoom: z, maxZoom: z});
+            const tile = tileIndex.getTile(z, x, y);
+            let buf = vtpbf.fromGeojsonVt({ 'geojsonLayer': tile})
+            res.writeHead(200, {
+              'Content-Type': 'application/x-protobuf'
+            });
+            res.end(buf)
           } else {
-            res.boom.badRequest('format must be pbf or json');
+            res.status(404).send();
           }
-        })
-        .catch(function (err) {
-          logger.error(err);
-          res.boom.badImplementation('server error!');
-        });
+          // Send a GeoJSON array
+        } else if (format === 'json'){
+          res.json(features);
+        } else {
+          res.boom.badRequest('format must be pbf or json');
+        }
+      } catch (err) {
+        logger.error(err);
+        res.boom.badImplementation('server error!');
+      };
     }
   }
 }
