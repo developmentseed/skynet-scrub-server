@@ -18,9 +18,9 @@ module.exports = function (client) {
   }
 
   return {
-    /* Get features by id */
+    /* Get feature by id */
     getFeatureById: async (req, res) => {
-      var id = req.params.id;
+      let id = req.params.id;
 
       if (notDefined(id)) {
         res.boom.badRequest('id is required');
@@ -31,7 +31,25 @@ module.exports = function (client) {
         res.json(dbObjToGeoJSON(feature));
       } catch (err) {
         logger.error(err);
-        res.status(404).send('Not found');
+        res.boom.notFound()
+      }
+    },
+
+    /* Set feature by id */
+    setFeatureById: async (req, res) => {
+      let id = req.params.id;
+      let body = req.body;
+
+      if (notDefined(id)) {
+        res.boom.badRequest('id is required');
+      }
+
+      try {
+        let ret = await client.set('features', id, body);
+        res.status(200).json('ok');
+      } catch (err) {
+        logger.error(err);
+        res.boom.badImplementation('Server error!');
       }
     },
 

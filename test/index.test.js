@@ -5,6 +5,7 @@ const logger = require('../utils/logger');
 const request = require('supertest');
 const fs = require('fs');
 const path = require('path');
+const dbObjToGeoJSON = require('../utils/db_to_geojson');
 
 var dbMock = require('./utils.js').db;
 
@@ -38,6 +39,8 @@ test('setFeatureById - create new feature', async t => {
     .send(singleFeature)
 
   t.is(res.status, 200);
-  let feature = await client.get('2');
-  t.deepEqual(singleFeature, feature);
+  let feature = await client.get('features', '2');
+  let geo = dbObjToGeoJSON(feature);
+  t.deepEqual(singleFeature.geometry, geo.geometry);
+  t.is(geo.properties.id, '2');
 });

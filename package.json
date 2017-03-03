@@ -9,6 +9,7 @@
     "test": "ava test/**/*.test.js"
   },
   "dependencies": {
+    "body-parser": "^1.17.0",
     "ejs": "^2.5.6",
     "express": "^4.14.1",
     "express-boom": "^2.0.0",
