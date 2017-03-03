@@ -31,7 +31,7 @@ app.get('/', function (req, res) {
 
 
 /* Feature routes */
-const features = require('./routes/features');
+const features = require('./routes/features')(client);
 app.get('/features/:z/:x/:y.:format', features.getFeaturesTile);
 app.get('/features/:id.json', features.getFeatureById);
 
@@ -39,3 +39,5 @@ app.get('/features/:id.json', features.getFeatureById);
 app.listen(PORT, function (err) {
   logger.info('Server listening on port', PORT)
 });
+
+module.exports = app;

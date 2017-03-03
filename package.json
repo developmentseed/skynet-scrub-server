@@ -5,7 +5,8 @@
   "license": "MIT",
   "scripts": {
     "start-db": "docker run -d -p 9851:9851 -v data:/data --name tile38 tile38/tile38 tile38-server -d /data",
-    "start": "node index.js"
+    "start": "node index.js",
+    "test": "ava test/**/*.test.js"
   },
   "dependencies": {
     "ejs": "^2.5.6",
@@ -22,5 +23,11 @@
     "tile38": "^0.6.4",
     "vt-pbf": "^2.1.2",
     "winston": "^2.3.1"
+  },
+  "devDependencies": {
+    "ava": "^0.18.2",
+    "rewire": "^2.5.2",
+    "sinon": "^1.17.7",
+    "supertest": "^3.0.0"
   }
 }
