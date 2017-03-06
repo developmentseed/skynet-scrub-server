@@ -5,6 +5,7 @@ const bodyParser = require('body-parser');
 const compression = require('compression');
 const morgan = require('morgan');
 const boom = require('express-boom');
+const cors = require('cors');
 
 var client = require('./db');
 
@@ -16,6 +17,7 @@ module.exports.init = function (opts) {
   app.set('view engine', 'ejs');
   app.use(express.static('public'));
   app.use(compression());
+  app.use(cors());
   app.use(bodyParser.json()); // for parsing application/json
   app.use(boom());
   app.use(morgan('common'));
