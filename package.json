@@ -4,20 +4,35 @@
   "main": "index.js",
   "license": "MIT",
   "scripts": {
-   "start-db": "docker run -d -p 9851:9851 -v data:/data --name tile38 tile38/tile38 tile38-server -d /data",
-   "start": "node index.js"
+    "start-db": "docker run -d -p 9851:9851 -v data:/data --name tile38 tile38/tile38 tile38-server -d /data",
+    "start": "node index.js",
+    "test": "ava test/**/*.test.js"
   },
   "dependencies": {
+    "body-parser": "^1.17.0",
+    "compression": "^1.6.2",
+    "cors": "^2.8.1",
     "ejs": "^2.5.6",
     "express": "^4.14.1",
+    "express-boom": "^2.0.0",
     "geojson-vt": "^2.4.0",
     "has": "^1.0.1",
     "map-stream": "^0.0.6",
     "minimist": "^1.2.0",
+    "morgan": "^1.8.1",
     "ndjson": "^1.5.0",
+    "not-defined": "^1.1.0",
+    "ramda": "^0.23.0",
     "sphericalmercator": "^1.0.5",
     "tile38": "^0.6.4",
     "vt-pbf": "^2.1.2",
-    "winston": "^2.3.1"
+    "winston": "^2.3.1",
+    "xtend": "^4.0.1"
+  },
+  "devDependencies": {
+    "ava": "^0.18.2",
+    "rewire": "^2.5.2",
+    "sinon": "^1.17.7",
+    "supertest": "^3.0.0"
   }
 }
