@@ -33,11 +33,13 @@ module.exports.init = function (opts) {
 
   /* Feature routes */
   const features = require('./routes/features')(client);
+  const commit = require('./routes/commit')(client);
   app.get('/features.json', features.getFeatures);
   app.get('/features/:z/:x/:y.:format', features.getFeaturesTile);
   app.get('/features/:id.json', features.getFeatureById);
   app.put('/features/:id.json', features.setFeatureById);
   app.delete('/features/:id.json', features.deleteFeatureById);
+  app.post('/commit', commit.commit);
 
   return app;
 }
