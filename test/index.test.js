@@ -56,3 +56,19 @@ test('deleteFeatureById - delete feature', async t => {
   t.is(res.status, 200);
   t.is(Object.keys(t.context.client.data).length, 0);
 });
+
+test('getFeatures - get all features', async t => {
+  const ids = await Promise.all([
+    t.context.client.set('features', '1', singleFeature),
+    t.context.client.set('features', '2', singleFeature),
+    t.context.client.set('features', '3', singleFeature)
+  ]);
+  t.is(Object.keys(t.context.client.data).length, 3); 
+
+  const res = await request(t.context.app)
+    .get('/features')
+    .set('Accept', 'application/json')
+
+  t.is(res.status, 200);
+  t.is(res.body.features.length, 3)
+});

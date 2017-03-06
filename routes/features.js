@@ -95,7 +95,6 @@ module.exports = function (client) {
           .cursor(calculatedCursor)
           .objects()
           .execute()
-        logger.debug(JSON.stringify(dbResponse));
 
         let ret = {
           features: dbResponse.objects,
