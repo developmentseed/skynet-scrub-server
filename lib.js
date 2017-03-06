@@ -2,6 +2,7 @@
 const express = require('express');
 const logger = require('./utils/logger');
 const bodyParser = require('body-parser');
+const compression = require('compression');
 const morgan = require('morgan');
 const boom = require('express-boom');
 
@@ -14,6 +15,7 @@ module.exports.init = function (opts) {
   app.set('views', __dirname + '/views');
   app.set('view engine', 'ejs');
   app.use(express.static('public'));
+  app.use(compression());
   app.use(bodyParser.json()); // for parsing application/json
   app.use(boom());
   app.use(morgan('common'));
@@ -31,6 +33,7 @@ module.exports.init = function (opts) {
   const features = require('./routes/features')(client);
   app.get('/features/:z/:x/:y.:format', features.getFeaturesTile);
   app.get('/features/:id.json', features.getFeatureById);
+  app.get('/features', features.getFeatures);
   app.put('/features/:id.json', features.setFeatureById);
 
   return app;

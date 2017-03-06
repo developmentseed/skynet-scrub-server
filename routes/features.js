@@ -6,15 +6,33 @@ const SphericalMercator = require('sphericalmercator');
 const merc = new SphericalMercator();
 const gvt = require('geojson-vt');
 const vtpbf = require('vt-pbf');
+const R = require('ramda');
 
 /* Inject client connection */
 module.exports = function (client) {
+  /* Wrap cursor to get all data */
+  async function wrapCursor (f) {
+    let done = false;
+    let cursor = 0;
+    let results = [];
+    while (!done) {
+      const res = await f(cursor);
+      results.push(res.objects);
+      done = (res.cursor === 0);
+      cursor = res.cursor
+    }
+    return R.flatten(results);
+  }
+
   /* Get features from db at z,x,y tile */
   function queryTile(z, x, y) {
     const bbox = merc.bbox(x, y, z);
-    return client.intersectsQuery('features')
-      .bounds(bbox[1], bbox[0], bbox[3], bbox[2])
-      .execute();
+    return wrapCursor(function (cursorValue) {
+      return client.intersectsQuery('features')
+        .bounds(bbox[1], bbox[0], bbox[3], bbox[2])
+        .cursor(cursorValue)
+        .execute();
+    });
   }
 
   return {
@@ -53,6 +71,31 @@ module.exports = function (client) {
       }
     },
 
+    getFeatures: async (req, res) => {
+      let page = parseInt(req.query.p || 1);
+      let calculatedCursor = page * 100 - 100;
+
+      try {
+        let dbResponse = await client.scanQuery('features')
+          .cursor(calculatedCursor)
+          .objects()
+          .execute()
+        logger.debug(JSON.stringify(dbResponse));
+
+        let ret = {
+          features: dbResponse.objects,
+          pagination: {
+            next: (dbResponse.cursor === 0) ? 1 : (page + 1)
+          }
+        }
+        res.status(200).json(ret);
+
+      } catch (err) {
+        logger.error(err);
+        res.boom.badImplementation('Server error!');
+      }
+    },
+
     /* Get features at z,x,y tile */
     getFeaturesTile: async (req, res) => {
       let p = req.params;
@@ -62,7 +105,8 @@ module.exports = function (client) {
       let format = p.format;
 
       let tileData = await queryTile(z, x, y)
-      let features = tileData.objects.map(dbObjToGeoJSON);
+      logger.debug(JSON.stringify(tileData));
+      let features = tileData.map(dbObjToGeoJSON);
 
       try {
         // Send a vector tile

@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "body-parser": "^1.17.0",
+    "compression": "^1.6.2",
     "ejs": "^2.5.6",
     "express": "^4.14.1",
     "express-boom": "^2.0.0",
@@ -20,10 +21,12 @@
     "morgan": "^1.8.1",
     "ndjson": "^1.5.0",
     "not-defined": "^1.1.0",
+    "ramda": "^0.23.0",
     "sphericalmercator": "^1.0.5",
     "tile38": "^0.6.4",
     "vt-pbf": "^2.1.2",
-    "winston": "^2.3.1"
+    "winston": "^2.3.1",
+    "xtend": "^4.0.1"
   },
   "devDependencies": {
     "ava": "^0.18.2",
