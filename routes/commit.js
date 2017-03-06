@@ -4,7 +4,7 @@ const has = require('has');
 module.exports = function (client) {
   return {
     commit: async (req, res) => {
-      if (!has(req.body, 'edited') || !has(req.body, 'deleted')) {
+      if (!has(req.body, 'edited') && !has(req.body, 'deleted')) {
         return res.boom.badRequest('bad commit');
       }
       let {edited, deleted} = req.body;
