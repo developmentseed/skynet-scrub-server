@@ -71,6 +71,21 @@ module.exports = function (client) {
       }
     },
 
+    deleteFeatureById: async (req, res) => {
+      let id = req.params.id;
+
+      if (notDefined(id)) {
+        res.boom.badRequest('id is required');
+      }
+      try {
+        let ret = await client.del('features', id);
+        res.status(200).json('ok');
+      } catch (err) {
+        logger.error(err);
+        res.boom.badImplementation('Server error!');
+      }
+    }, 
+
     getFeatures: async (req, res) => {
       let page = parseInt(req.query.p || 1);
       let calculatedCursor = page * 100 - 100;

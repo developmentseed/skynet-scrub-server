@@ -31,10 +31,11 @@ module.exports.init = function (opts) {
 
   /* Feature routes */
   const features = require('./routes/features')(client);
+  app.get('/features', features.getFeatures);
   app.get('/features/:z/:x/:y.:format', features.getFeaturesTile);
   app.get('/features/:id.json', features.getFeatureById);
-  app.get('/features', features.getFeatures);
   app.put('/features/:id.json', features.setFeatureById);
+  app.delete('/features/:id.json', features.deleteFeatureById);
 
   return app;
 }

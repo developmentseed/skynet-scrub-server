@@ -24,4 +24,12 @@ dbMock.prototype.set = function (key, id, data) {
   })
 }
 
+dbMock.prototype.del = function (key, id) {
+  let self = this;
+  return new Promise((resolve, reject) => {
+    delete self.data[id];
+    resolve();
+  })
+}
+
 module.exports.db = dbMock;
