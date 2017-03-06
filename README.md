@@ -21,7 +21,7 @@ Gets the features at the z/x/y tile as a vector tile protobuf suitable for mapbo
 ## ⚙ run your own
 ### dependencies
 - Docker
-- node 6+
+- node 7.6
 
 ## run the database
 ```
@@ -31,7 +31,7 @@ npm run start-db
 ```
 This will host the database at localhost:9851
 
-## import data into database 
+## import data into database
 
 ```
 yarn install
