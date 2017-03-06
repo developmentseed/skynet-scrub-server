@@ -31,7 +31,7 @@ module.exports.init = function (opts) {
 
   /* Feature routes */
   const features = require('./routes/features')(client);
-  app.get('/features', features.getFeatures);
+  app.get('/features.json', features.getFeatures);
   app.get('/features/:z/:x/:y.:format', features.getFeaturesTile);
   app.get('/features/:id.json', features.getFeatureById);
   app.put('/features/:id.json', features.setFeatureById);

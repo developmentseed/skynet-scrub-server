@@ -66,7 +66,7 @@ test('getFeatures - get all features', async t => {
   t.is(Object.keys(t.context.client.data).length, 3); 
 
   const res = await request(t.context.app)
-    .get('/features')
+    .get('/features.json')
     .set('Accept', 'application/json')
 
   t.is(res.status, 200);
