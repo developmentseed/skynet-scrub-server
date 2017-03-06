@@ -1,0 +1,20 @@
+version: '2'
+services:
+  db:
+    image: tile38/tile38
+    command: tile38-server -d /data
+    volumes:
+      - sssdata:/data
+    ports:
+      - "9851"
+  api:
+    image: developmentseed/skynet-scrub-server
+    ports:
+      - "4030:4030"
+    environment:
+      - DB_HOST=db
+    depends_on:
+      - db
+volumes:
+  sssdata:
+
