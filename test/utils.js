@@ -1,10 +1,15 @@
 const logger = require('../utils/logger');
 const has = require('has');
 
+/** 
+ * Mocks tile38 scan query
+ * .scanQuery().limit(num).cursor(num).objects().execute()
+ */
 class Query {
   constructor (db) {
     this.cur = 0;
     this.db = db;
+    this.cursorLimit = 100;
   }
 
   cursor (value) {
@@ -16,11 +21,16 @@ class Query {
     return this;
   }
 
+  limit (value) {
+    this.cursorLimit = value;
+    return this;
+  }
+
   execute () {
     let self = this;
     return new Promise((resolve, reject) => {
       let keys = Object.keys(self.db.data);
-      let nextCursor = self.cur + 100;
+      let nextCursor = self.cur + self.cursorLimit;
       let cursorSet = keys.slice(self.cur, nextCursor);
 
       let retCursor = (nextCursor > (keys.length - 1)) ? 0 : nextCursor;
@@ -36,6 +46,9 @@ class Query {
   }
 }
 
+/** 
+ * Mocks node-tile38
+ */
 class dbMock {
   constructor () {
     this.data = {}
