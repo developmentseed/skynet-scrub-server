@@ -6,6 +6,7 @@ const request = require('supertest');
 const fs = require('fs');
 const path = require('path');
 const dbObjToGeoJSON = require('../utils/db_to_geojson');
+const R = require('ramda');
 
 var dbMock = require('./utils.js').db;
 
@@ -71,4 +72,39 @@ test('getFeatures - get all features', async t => {
 
   t.is(res.status, 200);
   t.is(res.body.features.length, 3)
+});
+
+test('commit - commit multiple features', async t => {
+  let differentFeature = R.assocPath(['geometry', 'coordinates'],
+    [[123,9],[123,10]], 
+    singleFeature);
+
+  const ids = await Promise.all([
+    t.context.client.set('features', '1', singleFeature),
+    t.context.client.set('features', '2', differentFeature),
+    t.context.client.set('features', '3', singleFeature)
+  ]);
+
+  let features = {};
+  features['1'] = R.assocPath(['properties', 'id'], '1', differentFeature);
+  features['2'] = R.assocPath(['properties', 'id'], '2', singleFeature);
+  features['4'] = R.assocPath(['properties', 'id'], '4', differentFeature);
+
+  let commit = {
+    'edited': R.values(features),
+    'deleted': ['3']
+  }
+
+  const res = await request(t.context.app)
+    .post('/commit')
+    .send(commit)
+
+  t.is(res.status, 200);
+  t.is(Object.keys(t.context.client.data).length, 3); 
+
+  // Compare data
+  ['1', '2', '4'].forEach(async (id) => {
+    let feature = await t.context.client.get('features', id);
+    t.deepEqual(features[id], dbObjToGeoJSON(feature));
+  })
 });
