@@ -7,10 +7,11 @@ const morgan = require('morgan');
 const boom = require('express-boom');
 const cors = require('cors');
 
-var client = require('./db');
+var db = require('./db');
 
 module.exports.init = function (opts) {
   const app = express();
+  let client = db.init();
 
   /* Router settings */
   app.set('views', __dirname + '/views');
@@ -41,5 +42,7 @@ module.exports.init = function (opts) {
   app.delete('/features/:id.json', features.deleteFeatureById);
   app.post('/commit', commit.commit);
 
-  return app;
+  return {
+    app, client
+  };
 }

@@ -8,7 +8,7 @@ const argv = minimist(process.argv.slice(2));
 const PORT = argv.port || process.env.PORT || 4030
 
 /* Imports */
-const app = require('./lib').init(xtend(argv, {port: PORT}));
+const app = require('./lib').init(xtend(argv, {port: PORT})).app;
 
 /* Kickoff server */
 app.listen(PORT, function (err) {
