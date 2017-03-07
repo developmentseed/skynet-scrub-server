@@ -1,0 +1,18 @@
+machine:
+  node:
+    version: 7.6
+  services:
+    - docker
+dependencies:
+  override:
+    - yarn
+test:
+  override:
+    - yarn test
+deployment:
+  hub:
+    branch: master
+    commands:
+      - docker login -e $DOCKER_EMAIL -u $DOCKER_USER -p $DOCKER_PASS
+      - docker build --rm=false -t developmentseed/skynet-scrub-server
+      - docker push developmentseed/skynet-scrub-server

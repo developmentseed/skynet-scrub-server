@@ -14,13 +14,12 @@ let test = ava.test;
 let singleFeature = JSON.parse(fs.readFileSync(path.join(__dirname, 'fixtures/feature.geojson')));
 
 test.beforeEach(t => {
-  var client = new dbMock();
+  var db = dbMock;
 
   let lib = rewire('../lib.js');
-  lib.__set__({
-    client: client
-  });
-  let app = lib.init();
+  lib.__set__({ db });
+
+  let {app, client} = lib.init();
 
   t.context.app = app;
   t.context.client = client;

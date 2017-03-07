@@ -86,4 +86,10 @@ class dbMock {
   }
 }
 
-module.exports.db = dbMock;
+function clientInit () {
+  return new dbMock();
+}
+
+module.exports.db = {
+  init: clientInit
+}
