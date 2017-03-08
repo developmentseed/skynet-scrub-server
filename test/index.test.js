@@ -19,7 +19,7 @@ test.beforeEach(t => {
   let lib = rewire('../lib.js');
   lib.__set__({ db });
 
-  let {app, client} = lib.init();
+  let {app, client} = lib.init({});
 
   t.context.app = app;
   t.context.client = client;

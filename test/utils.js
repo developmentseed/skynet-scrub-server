@@ -87,7 +87,7 @@ class dbMock {
 }
 
 function clientInit () {
-  return new dbMock();
+  return new dbMock({});
 }
 
 module.exports.db = {

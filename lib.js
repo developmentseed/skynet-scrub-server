@@ -11,7 +11,9 @@ var db = require('./db');
 
 module.exports.init = function (opts) {
   const app = express();
-  let client = db.init();
+  let client = db.init({
+    domain: opts.dbaddr || process.env.DB_ADDR
+  });
 
   /* Router settings */
   app.set('views', __dirname + '/views');

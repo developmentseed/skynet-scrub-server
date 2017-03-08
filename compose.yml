@@ -12,7 +12,9 @@ services:
     ports:
       - "4030:4030"
     environment:
-      - DB_HOST=db
+      - DB_ADDR=db:9851
+      - ADDR=${ADDR}
+      - TOKEN=${TOKEN}
     depends_on:
       - db
 volumes:
