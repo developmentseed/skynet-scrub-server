@@ -9,8 +9,16 @@ const map = require('map-stream');
 const crypto = require('crypto');
 const winston = require('winston');
 
-const client = new tile38();
 const argv = minimist(process.argv.slice(2));
+let domain = argv.h || 'localhost:9851';
+let [host, port] = domain.split(':');
+
+const client = new tile38(
+  {
+    host,
+    port
+  }
+);
 
 function insertFeature(feature, callback) {
   let id = crypto.randomBytes(20).toString('hex');
@@ -25,7 +33,7 @@ function insertFeature(feature, callback) {
 }
 
 if (!has(argv, 'file') && !has(argv, 'f')) {
-  winston.log('Usage: node import.js -f file.features');
+  winston.log('Usage: node import.js -f file.features [-h localhost:851]');
   winston.log('file.features is a line delimited geojson feature list');
   process.exit(1);
 } else {
