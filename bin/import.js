@@ -33,7 +33,7 @@ function insertFeature(feature, callback) {
 }
 
 if (!has(argv, 'file') && !has(argv, 'f')) {
-  winston.log('Usage: node import.js -f file.features [-h localhost:851]');
+  winston.log('Usage: node import.js -f file.features [-h localhost:9851]');
   winston.log('file.features is a line delimited geojson feature list');
   process.exit(1);
 } else {
