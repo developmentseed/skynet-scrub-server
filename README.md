@@ -35,9 +35,9 @@ Deletes a feature by id
 Batch update and delete features
 `req.body` is a commit object with two keys. `edited` is a list of GeoJSON features with "id" properties corresponding to objects in the database. `deleted` is a list of ids to be deleted in the database.
 
-Commit format: 
+Commit format:
 
-```
+```json
 {
     "edited":
     [
@@ -70,7 +70,7 @@ Commit format:
 - node 7.6
 
 ## run the database
-```
+```bash
 docker pull tile38/tile38
 mkdir data
 npm run start-db
@@ -79,9 +79,14 @@ This will host the database at localhost:9851
 
 ## import data into database
 
-```
+```bash
 yarn install
 bin/import.js -f test/fixtures/testset.geojson
+```
+
+## drop all features from the database
+```bash
+bin/drop.js
 ```
 
 ## run the server
@@ -92,7 +97,7 @@ Options:
 - --port: the tcp port where the server will run (defaults to `4030`)
 - --addr: the address where the server will run (used to construct URLs in the html, defaults to `http://localhost:4030`)
 
-```
+```bash
 node index.js --token MAPBOX_ACCESS_TOKEN
 ```
 
